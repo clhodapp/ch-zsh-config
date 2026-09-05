@@ -8,7 +8,6 @@
 }:
 let
   cfg = config.ch-zsh-config.zsh;
-  ghostelIntegrationEnabled = cfg.enableGhostelIntegration;
 
   # PROMPT uses $(command) expansions for prompt_subst. Home Manager now escapes
   # backslashes in localVariables, so assign PROMPT here in single quotes instead.
@@ -49,20 +48,7 @@ let
     # literal when nothing matches (bash-like) so unquoted refs work under sudo too.
   '';
 
-  ghostelInitContent = ''
-    update_emacs_env() {
-      ghostel_cmd "ch/ghostel-send-buffer-env"
-      local cmd
-      read -r -s cmd
-      eval "$cmd"
-    }
-  '';
-
-  defaultInitContent =
-    baseInitContent
-    + lib.optionalString ghostelIntegrationEnabled ghostelInitContent
-    + promptInitContent
-    + cfg.extraInitContent;
+  defaultInitContent = baseInitContent + promptInitContent + cfg.extraInitContent;
 in
 {
   options.ch-zsh-config.zsh = {
@@ -72,22 +58,6 @@ in
       type = lib.types.bool;
       default = true;
       description = "Enable direnv integration for zsh sessions.";
-    };
-
-    enableGhostelIntegration = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
-      description = ''
-        Shell helpers for ghostel, the terminal emulator that runs
-        inside Emacs: `update_emacs_env` pulls the live Emacs
-        environment into the shell.
-
-        Off by default because it is useful only when Emacs is
-        configured to run ghostel. This module used to detect that by
-        reading the Emacs module's options, which worked while both
-        lived in one flake; now that they do not, asking is the honest
-        alternative to guessing.
-      '';
     };
 
     extraPackages = lib.mkOption {
