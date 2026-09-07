@@ -34,11 +34,11 @@ with duplicates dropped and space-prefixed commands excluded.
 }
 ```
 
-Set `enableGhostelIntegration` if you run ghostel; it adds
-`update_emacs_env`, which pulls the live Emacs environment into the
-shell. It defaults off because it is useful only alongside an Emacs
-configured to run ghostel, and this module cannot tell whether you have
-one.
+Beyond `enable`, the module has `enableDirenv` (on by default),
+`extraPackages` for packages to install alongside zsh, and
+`extraInitContent` for init lines appended after the module's own.
+Everything it sets is a default, so a consumer's own `programs.zsh`
+settings win.
 
 ## Development
 
@@ -50,6 +50,28 @@ prompt's trailing space and the `no_match` setting are asserted too,
 since both are easy to lose in a refactor and neither fails loudly.
 
 `nix fmt` formats.
+
+In CI the same `nix flake check` runs with the Nix store cached between
+runs. A pull request that leaves `.github/` alone is checked by `main`'s
+copy of the workflow, in `main`'s context once its own check completes,
+and adds its build to the shared cache; one that changes the pipeline is
+checked by its own copy, under a cache only it can see. The comments at
+the top of the two workflow files say why that split is what makes the
+cache safe to write from a pull request.
+
+## Binary cache
+
+What `main` builds is pushed to the `clhodapp` cachix cache, signed with
+its key. That cache skips paths its upstreams already hold, so using it
+means using them too:
+
+| Substituter | Public key |
+|---|---|
+| `https://clhodapp.cachix.org` | `clhodapp.cachix.org-1:EW/0conxH0OQyo0o4ub/grdkFspholmQMSnQyj0vrZI=` |
+| `https://nix-community.cachix.org` | `nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=` |
+| `https://numtide.cachix.org` | `numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=` |
+
+Add all three to `extra-substituters` and `extra-trusted-public-keys`.
 
 ## License
 
