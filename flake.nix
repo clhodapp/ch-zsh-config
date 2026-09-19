@@ -44,9 +44,7 @@
         };
 
         modules = lib: {
-          homeManager = import ./modules/home-manager {
-            inherit lib;
-          };
+          homeManager.zsh = lib.caisson.home-manager.mkModule ./modules/home-manager/zsh;
         };
       };
     in
