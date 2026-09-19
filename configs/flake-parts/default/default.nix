@@ -8,11 +8,6 @@
 {
 
   debug = false;
-  systems = [
-    "x86_64-linux"
-    "aarch64-linux"
-  ];
-
   caisson.configInfo.configName = "ch-zsh-config";
   caisson.modules.homeManager.exported = modules: { inherit (modules) zsh; };
 
