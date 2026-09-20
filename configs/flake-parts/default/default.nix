@@ -7,6 +7,8 @@
 }:
 {
 
+  imports = [ inputs.flake-parts.flakeModules.partitions ];
+
   debug = false;
   caisson.configInfo.configName = "ch-zsh-config";
   caisson.modules.homeManager.exported = modules: { inherit (modules) zsh; };
