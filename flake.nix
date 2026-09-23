@@ -44,9 +44,7 @@
           inherit caisson;
         };
 
-        modules = lib: {
-          homeManager.zsh = lib.caisson.home-manager.mkModule ./modules/home-manager/zsh;
-        };
+        modules = caisson.lib.caisson-core.mkModules ./modules;
       };
     in
     lib.caisson.flake-parts.mkConfiguration {
