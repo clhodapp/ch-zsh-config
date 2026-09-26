@@ -35,6 +35,7 @@
     let
       lib = caisson.lib.caisson-core.mkLib {
         inherit inputs;
+        namespace = "ch-zsh-config";
         systems = [
           "x86_64-linux"
           "aarch64-linux"
@@ -44,13 +45,10 @@
           inherit caisson;
         };
 
-        modules = lib: {
-          homeManager.zsh = lib.caisson.home-manager.mkModule ./modules/home-manager/zsh;
-        };
+        modules = caisson.lib.caisson-core.mkModules ./modules;
       };
     in
     lib.caisson.flake-parts.mkConfiguration {
-      name = "ch-zsh-config";
       configModule = lib.caisson.flake-parts.mkModule ./configs/flake-parts/default;
     };
 
