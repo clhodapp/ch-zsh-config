@@ -12,8 +12,6 @@
   debug = false;
   caisson.modules.homeManager.exported = modules: { inherit (modules) zsh; };
 
-  caisson.nixpkgs.pkgSets.pkgs.pkgFunction = import inputs.nixpkgs;
-
   partitionedAttrs.checks = "checks";
   partitionedAttrs.formatter = "formatter";
 
