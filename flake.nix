@@ -47,6 +47,7 @@
 
         modules = caisson.lib.caisson-core.mkModules ./modules;
         configs = caisson.lib.caisson-core.mkModules ./configs;
+        pkgSets = lib: lib.caisson.nixpkgs.mkConfigurations { };
       };
     in
     lib.caisson.flake-parts.mkConfiguration {
