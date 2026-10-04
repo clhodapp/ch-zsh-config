@@ -50,8 +50,6 @@
         pkgSets = lib: lib.caisson.nixpkgs.mkConfigurations { };
       };
     in
-    lib.caisson.flake-parts.mkConfiguration {
-      configModule = lib.caisson-core.configs.flake.ch-zsh-config;
-    };
+    lib.caisson.flake-parts.mkTopConfiguration { };
 
 }
