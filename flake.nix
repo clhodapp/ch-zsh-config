@@ -33,8 +33,8 @@
   outputs =
     inputs@{ caisson, ... }:
     let
-      lib = caisson.lib.caisson-core.mkLib {
-        inherit (caisson.lib.caisson-core.pins.flake inputs) sources root;
+      lib = caisson.lib.caisson.mkLib {
+        inherit (caisson.lib.caisson.pins.flake inputs) sources root;
         name = "ch-zsh-config";
         systems = [
           "x86_64-linux"
@@ -45,8 +45,8 @@
           inherit caisson;
         };
 
-        modules = lib: lib.caisson-core.mkModules ./modules;
-        configs = lib: lib.caisson-core.mkModules ./configs;
+        modules = lib: lib.caisson.mkModules ./modules;
+        configs = lib: lib.caisson.mkModules ./configs;
         pkgSets = lib: lib.caisson.nixpkgs.mkConfigurations { };
       };
     in
