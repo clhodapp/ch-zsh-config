@@ -12,7 +12,17 @@
   debug = false;
   caisson.modules.homeManager.exported = modules: { inherit (modules) zsh; };
 
-  partitionedAttrs.checks = "checks";
+  # The checks of ch-zsh-config, with the pins of tests/dependencies
+  # that only the checks need (configs/flake/checks). The caisson top
+  # gathers the checks of every configuration declared inside it into
+  # its `checks` output. This selector passes the configuration up to
+  # nothing, so a flake that reads the exports of ch-zsh-config
+  # evaluates neither the configuration nor its pins.
+  caisson.flake-parts.configurations.checks = lib.caisson.flake-parts.mkConfiguration {
+    inherit (lib.caisson.pins.flake-compat ../../../tests/dependencies) dependencies;
+  };
+  caisson.flake-parts.exported = _: { };
+
   partitionedAttrs.formatter = "formatter";
 
   partitions.formatter = {
@@ -22,67 +32,6 @@
       {
         imports = [ inputs.treefmt-nix.flakeModule ];
         perSystem.treefmt.programs.nixfmt.enable = true;
-      };
-  };
-
-  partitions.checks = {
-    extraInputs = (lib.caisson.pins.flake-compat ../../../tests/dependencies).dependencies;
-    module =
-      { inputs, self, ... }:
-      {
-        imports = [ inputs.treefmt-nix.flakeModule ];
-        perSystem =
-          { pkgs, ... }:
-          let
-            # Evaluate the module end to end and take the rendered
-            # .zshrc out of the built configuration, so the checks below
-            # read what a real activation would write.
-            configuration = inputs.home-manager.lib.homeManagerConfiguration {
-              inherit pkgs;
-              modules = [
-                self.modules.homeManager.zsh
-                {
-                  home.username = "tester";
-                  home.homeDirectory = "/home/tester";
-                  home.stateVersion = "25.05";
-                  ch-zsh-config.zsh.enable = true;
-                }
-              ];
-            };
-
-            # Found by suffix rather than by a hardcoded key: the module
-            # puts .zshrc under xdg.configHome, so the attribute name
-            # moves with a consumer's XDG settings.
-            zshrcFile =
-              (lib.findSingle (f: lib.hasSuffix "/.zshrc" f.target) null null (
-                lib.attrValues configuration.config.home.file
-              )).source;
-          in
-          {
-            checks = {
-              # The module renders a .zshrc that zsh accepts. A syntax
-              # error here would otherwise surface as a broken login
-              # shell after activation, which is an awkward place to
-              # find one.
-              zshrc = pkgs.runCommand "zshrc-syntax" { nativeBuildInputs = [ pkgs.zsh ]; } ''
-                rc=${zshrcFile}
-                zsh -n "$rc"
-
-                # Drop the prompt's trailing space and the cursor sits
-                # flush against the `$` (`$ls` for `$ ls`), because
-                # ghostel appends OSC 133 mark B to PROMPT.
-                grep -q "%~ \$ '" "$rc"
-
-                # Nix installable refs contain `#`, which extended_glob
-                # treats as syntax; no_match would then error on zero
-                # matches instead of passing the token through.
-                grep -q 'unsetopt no_match' "$rc"
-
-                touch $out
-              '';
-            };
-            treefmt.programs.nixfmt.enable = true;
-          };
       };
   };
 
